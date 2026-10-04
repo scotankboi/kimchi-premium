@@ -1,0 +1,7 @@
+# tested with Python 3.13 and 3.14, pandas 3.0, numpy 2.5, matplotlib 3.11
+pandas>=2.2
+numpy>=1.26
+requests>=2.31
+matplotlib>=3.8
+pyyaml>=6.0
+pytest>=8.0

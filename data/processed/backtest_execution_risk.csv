@@ -1,0 +1,11 @@
+path,fx_filter,window,from,signal_hours,mean_expected,mean_realized,slippage_std,slippage_p05,share_realized_negative
+btc_unhedged,all hours,since USDT listing,2024-06-07 10:00:00+00:00,4520,0.019775,0.019599,0.005645,-0.008861,0.029204
+btc_unhedged,all hours,since perpetual launch,2019-09-10 08:00:00+00:00,19715,0.026882,0.026770,0.007015,-0.010170,0.022673
+btc_hedged,all hours,since USDT listing,2024-06-07 10:00:00+00:00,4151,0.020046,0.019911,0.002453,-0.003458,0.001686
+btc_hedged,all hours,since perpetual launch,2019-09-10 08:00:00+00:00,18650,0.027094,0.026947,0.003577,-0.004817,0.002306
+usdt,all hours,since USDT listing,2024-06-07 10:00:00+00:00,4814,0.019678,0.019564,0.002359,-0.003149,0.001454
+btc_unhedged,fresh FX only (fixing <= 24h old),since USDT listing,2024-06-07 10:00:00+00:00,2961,0.019551,0.019474,0.005371,-0.008420,0.025667
+btc_unhedged,fresh FX only (fixing <= 24h old),since perpetual launch,2019-09-10 08:00:00+00:00,13044,0.027407,0.027321,0.007212,-0.010258,0.022462
+btc_hedged,fresh FX only (fixing <= 24h old),since USDT listing,2024-06-07 10:00:00+00:00,2714,0.019832,0.019697,0.002402,-0.003421,0.001474
+btc_hedged,fresh FX only (fixing <= 24h old),since perpetual launch,2019-09-10 08:00:00+00:00,12304,0.027715,0.027567,0.003696,-0.005038,0.002520
+usdt,fresh FX only (fixing <= 24h old),since USDT listing,2024-06-07 10:00:00+00:00,3164,0.019433,0.019315,0.002322,-0.002975,0.001580

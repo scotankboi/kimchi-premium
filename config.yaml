@@ -1,0 +1,105 @@
+# Every assumption lives here. src/config.py rejects unknown keys, so a typo
+# fails loudly instead of being silently ignored.
+
+period:
+  start: "2017-09-25"   # first Upbit KRW-BTC candle
+  end: null             # null = last fully closed hour/day (UTC)
+
+markets:
+  upbit_coin: KRW-BTC
+  upbit_usdt: KRW-USDT  # listed 2024-06-07; before that the decomposition uses Bithumb
+  binance_coin: BTCUSDT
+  bithumb_coin: KRW-BTC
+  bithumb_usdt: KRW-USDT  # listed 2023-12-07, six months before Upbit's
+
+bithumb:
+  # Used only to extend the decomposition back before Upbit listed USDT. Both legs
+  # (coin and USDT) come from Bithumb so no cross-exchange gap enters the split.
+  base_url: https://api.bithumb.com/v1
+  sleep_sec: 0.12
+  start: "2023-12-07"
+
+upbit:
+  base_url: https://api.upbit.com/v1
+  sleep_sec: 0.12       # quotation API allows ~10 req/s per IP
+
+binance:
+  # data-api.binance.vision serves the same public market data and works
+  # where api.binance.com is geo-blocked (HTTP 451).
+  base_urls:
+    - https://api.binance.com
+    - https://data-api.binance.vision
+  sleep_sec: 0.1
+  futures_base_url: https://fapi.binance.com   # funding rates for the hedged variant
+  funding_start: "2019-09-01"                  # BTCUSDT perpetual launched Sep 2019
+
+fx:
+  # FRED DEXKOUS = H.10 noon buying rate in New York (KRW per USD), no key needed.
+  url: https://fred.stlouisfed.org/graph/fredgraph.csv?id=DEXKOUS
+  fixing_time: "12:00"
+  fixing_tz: America/New_York
+  max_age_days: 4       # longest weekend/holiday gap to forward-fill; older -> NaN
+
+sampling:
+  # Crypto prices are sampled at the FX fixing moment (NY noon) from hourly
+  # candles, so the daily premium compares prices observed at the same time.
+  price_tolerance_hours: 3   # if the exact hourly candle is missing, accept the last close up to this old
+
+quality:
+  max_abs_hourly_return: 0.20   # flag, never drop, hourly moves larger than this
+  max_abs_premium: 0.60         # flag premiums outside +/-60% for manual review
+  max_abs_usdt_premium: 0.10    # flag USDT/KRW more than 10% away from the FX rate
+
+decomposition:
+  large_premium: 0.02    # also report the split on days when KP exceeds this
+
+drivers:
+  return_window_days: 30
+  turnover_baseline_days: 90   # Upbit trading value relative to its trailing median over this many days
+  fx_vol_fixings: 21           # trailing FX fixings (about one month) for USD/KRW volatility
+  newey_west_lags: 3           # monthly regression; the premium is highly persistent
+  sample_starts: ["2017-09-25", "2019-01-01"]   # full sample, and excluding the 2017-18 mania
+
+events:
+  # Candidates to annotate. Each is checked against the hourly premium first (src/events.py);
+  # one is drawn only if, within hours_after, the premium moved at least min_move_pp away from
+  # its mean over the hours_before before the event.
+  # time_utc is exact where the time is documented (martial law declared 22:27 KST; the October 2025
+  # liquidation cascade entered its fast phase at 20:50 UTC, hours after the US tariff post on China),
+  # otherwise 00:00 UTC of the date.
+  min_move_pp: 2.0
+  hours_before: 24
+  hours_after: 72
+  turnover_baseline_days: 30   # Upbit USDT/KRW hourly trading value vs its trailing median over this many days
+  list:
+    - {time_utc: "2018-01-11 00:00", label: "Exchange-ban remarks"}
+    - {time_utc: "2021-02-08 00:00", label: "Tesla BTC purchase"}
+    - {time_utc: "2022-05-09 00:00", label: "Terra/UST collapse"}
+    - {time_utc: "2022-11-08 00:00", label: "FTX collapse"}
+    - {time_utc: "2024-12-03 13:27", label: "Martial law declared"}
+    - {time_utc: "2025-10-10 20:50", label: "Crypto liquidation cascade"}
+
+backtest:
+  # Positive-premium direction only: buy abroad, sell in Korea, bring the won back out as dollars.
+  # Every round trip ends with an outbound remittance; the dollars remitted count against the annual cap.
+  trade_size_usd: 10000
+  annual_remit_cap_usd: 100000   # undocumented remittances per person per year, the 2026 rule,
+                                 # applied to every year (earlier years had different rules)
+  round_trip_days: 2             # capital is back abroad (bank remittance) before it can be reused
+  entry_buffer: 0.005            # trade only if the expected net return at entry exceeds this
+  fx_spread: 0.01                # bank KRW->USD transfer rate vs the fixing: ~1% above the base rate
+                                 # for USD with no preferential rate (scenarios below cover 0.25-1.75%)
+  transfer_hours: {btc: 1, usdt: 1}
+  fresh_fx_max_age_hours: 24     # robustness run: keep only hours whose FX fixing is at most this old
+  fees:
+    # Checked 2026-10-01 against the sources below. Today's fees are applied to every year.
+    binance_spot_taker: 0.001       # binance.com/en/fee/trading, regular user 0.100% / 0.100%
+    binance_futures_taker: 0.0005   # binance.com/en/fee/futureFee, USDS-M regular user 0.0200% / 0.0500%
+    upbit_trade: 0.0005             # upbit.com/service_center/fees, KRW market regular order 0.05%
+    btc_withdrawal_btc: 0.00002     # Binance BTC network withdrawal fee; Upbit deposits are free
+    usdt_withdrawal_usdt: 1.5       # Binance USDT on Tron; Upbit also accepts Kaia (0.02), Aptos (0.1), Ethereum (0.5)
+    remit_fee_usd: 38               # KB Kookmin (2026-01-05): KRW 20,000 (<= $10k) + KRW 8,000 cable
+                                    # + USD 18 intermediary bank fee, at ~KRW 1,400/USD
+  sensitivity:
+    fx_spreads: [0.0025, 0.005, 0.01, 0.0175]
+    entry_buffers: [0.0, 0.0025, 0.005, 0.01, 0.02]

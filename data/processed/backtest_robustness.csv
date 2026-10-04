@@ -1,0 +1,10 @@
+variant,path,full_years,median_rule_profit_usd,min_hindsight_usd,max_hindsight_usd,min_no_cap_usd,max_no_cap_usd
+baseline,btc_unhedged,2018-2025,1752,6134,40941,3622,53278
+baseline,btc_hedged,2020-2025,1465,5125,17553,2542,50645
+baseline,usdt,2025,1775,9389,9389,15553,15553
+fresh FX only (fixing <= 24h old),btc_unhedged,2018-2025,1533,6134,37649,1589,41871
+fresh FX only (fixing <= 24h old),btc_hedged,2020-2025,1445,5125,17553,1499,41010
+fresh FX only (fixing <= 24h old),usdt,2025,2773,7396,7396,12482,12482
+fixed fees doubled,btc_unhedged,2018-2025,1487,6098,40919,2041,49303
+fixed fees doubled,btc_hedged,2020-2025,1438,5088,17520,2093,46393
+fixed fees doubled,usdt,2025,1800,9353,9353,12184,12184
