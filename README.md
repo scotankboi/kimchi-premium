@@ -1,5 +1,7 @@
 # Kimchi Premium: how big, when, and why arbitrage does not close it
 
+**Taehyun (Terry) Kim** · [GitHub](https://github.com/scotankboi) · [LinkedIn](https://www.linkedin.com/in/scoterry)
+
 Public market data, September 2017 to September 2026, hourly. Fees as published on 2026-10-01.
 Research only: no trades are placed, and nothing here is a trading recommendation.
 
@@ -413,15 +415,18 @@ pytest -q
 
 All assumptions are in `config.yaml`; unknown or mistyped keys raise an error.
 
-## How I built this
+## My role and how I built this
 
-I set the question, the scope and the checks, and built the pipeline with AI coding tools (Claude)
-under my direction, reviewing each result before deciding the next step. The choices that matter
-most came from that review: sampling at the FX fixing, decomposing within one exchange, confirming
-each event in hourly data before drawing it, and quoting upper bounds only on the hedged, fresh-FX
-basis. Every number computed from market data is produced by `python -m src.pipeline`, some from the
-hourly table it writes locally (`premium_hourly.csv.gz`, not committed); figures from other sources
-are cited. The tests use hand-computed values.
+I led this project end to end. I chose the research question, set the scope and the assumptions in `config.yaml`, defined the checks every number has to pass, and reviewed each result before deciding the next step. I wrote the code with Claude Code as an AI pair-programmer, working under my direction.
+
+The design decisions that shaped the results:
+
+- **Sample at the FX fixing.** FRED's rate is a New York noon fixing, so every coin price is taken at the same hour; using the UTC daily close instead moves the premium by as much as the arbitrage costs.
+- **Decompose within one exchange.** The USDT and crypto-specific premiums are split using one venue's BTC and USDT prices, so cross-exchange gaps do not leak into either part.
+- **Confirm events in hourly data before annotating them.** An event is drawn on a chart only if the hourly series shows the move.
+- **Quote upper bounds only on the hedged, fresh-FX basis.** Stale FX fixings inflated the extreme results, so the hindsight bounds exclude them.
+
+Every number computed from market data is produced by `python -m src.pipeline`, some from the hourly table it writes locally (`premium_hourly.csv.gz`, not committed); figures from other sources are cited. The tests use hand-computed values.
 
 ## References
 
